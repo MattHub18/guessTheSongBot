@@ -2,3 +2,4 @@ pyrebase
 discord
 PyNaCl
 ffmpeg
+opus
