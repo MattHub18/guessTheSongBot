@@ -1,3 +1,4 @@
 pyrebase
 discord
 PyNaCl
+ffmpeg
