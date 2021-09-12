@@ -58,7 +58,7 @@ class GuessTheSong:
 intents = discord.Intents.default()
 intents.members = True
 
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = commands.Bot(command_prefix='>', intents=intents)
 
 match_table = {}
 
@@ -67,20 +67,20 @@ match_table = {}
 async def on_ready():
     print("Bot is ready!")
     channel = bot.get_channel(int(os.environ['CHANNEL']))
-    await channel.send("Welcome to Guess The Song v1.0! Type !guide to get all commands")
+    await channel.send("Welcome to Guess The Song v1.0! Type >guide to get all commands")
 
 
 @bot.command()
 async def guide(ctx):
     em = discord.Embed(title="Guide", description="This is the commands\' list you can use")
     em.add_field(name="Commands:",
-                 value="!join => bot joins voice channel\n"
-                       "!leave => bot leaves voice channel\n"
-                       "!play => play current song\n"
-                       "!skip => skip current song\n"
-                       "!guess \"title\"  => guess the song, title=insert song title\n"
-                       "!table => show the table of current match\n"
-                       "!guide => show this guide")
+                 value=">join => bot joins voice channel\n"
+                       ">leave => bot leaves voice channel\n"
+                       ">play => play current song\n"
+                       ">skip => skip current song\n"
+                       ">guess \"title\"  => guess the song, title=insert song title\n"
+                       ">table => show the table of current match\n"
+                       ">guide => show this guide")
 
     await ctx.send(embed=em)
 
@@ -117,18 +117,21 @@ async def play(ctx):
 
 @bot.command()
 async def guess(ctx, message):
-    game = GuessTheSong()
-    if message.casefold() == game.song_title.casefold():
-        author = str(ctx.message.author).split("#")[0]
-        await ctx.send("Correct! One point to {author}".format(author=author))
-        global match_table
-        if author in match_table.keys():
-            match_table.update({author: match_table[author] + 1})
+    if ctx.author.voice:
+        game = GuessTheSong()
+        if message.casefold() == game.song_title.casefold():
+            author = str(ctx.message.author).split("#")[0]
+            await ctx.send("Correct! One point to {author}".format(author=author))
+            global match_table
+            if author in match_table.keys():
+                match_table.update({author: match_table[author] + 1})
+            else:
+                match_table[author] = 1
+            next_song()
         else:
-            match_table[author] = 1
-        next_song()
+            await ctx.send("Try again!")
     else:
-        await ctx.send("Try again!")
+        await ctx.send("You must to be in a voice channel to run this command!")
 
 
 @bot.command()
